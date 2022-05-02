@@ -1,5 +1,7 @@
 # TODO
-# 1: Database/cluster parameter change (how)
+# : Add User management module functionality
+# : Add Montoring module
+# : Database/cluster parameter change (how)
 
 locals {
   aurora_clusters_map = flatten([
@@ -19,7 +21,7 @@ locals {
       master_username                     = try(v.master_username, "ccv_admin")
       monitoring_interval                 = try(v.monitoring_interval, 30)
       performance_insights                = try(v.performance_insights, true)
-      stack                               = v.stack
+      stack                               = replace(v.stack, "-", "_")
       subnet_ids                          = v.subnet_ids
   }])
 }
