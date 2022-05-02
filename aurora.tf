@@ -11,6 +11,7 @@ locals {
       cidr_blocks                         = v.cidr_blocks
       cluster_family                      = try(v.cluster_family, "aurora-mysql5.7")
       cluster_parameters                  = try(v.cluster_parameters, null)
+      database_parameters                 = try(v.database_parameters, null)
       deletion_protection                 = try(v.deletion_protection, false)
       engine                              = try(v.engine, "aurora-mysql")
       engine_version                      = try(v.engine_version, "5.7.mysql_aurora.2.10.2")
@@ -46,7 +47,9 @@ module "rds_aurora" {
   backup_retention_period             = each.value.backup_retention_period
   cidr_blocks                         = each.value.cidr_blocks
   cluster_family                      = each.value.cluster_family
+  cluster_parameters                  = each.value.cluster_parameters
   deletion_protection                 = each.value.deletion_protection
+  database_parameters                 = each.value.database_parameters
   enabled_cloudwatch_logs_exports     = ["audit", "error", "general", "slowquery"]
   engine                              = each.value.engine
   engine_version                      = each.value.engine_version
