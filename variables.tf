@@ -8,6 +8,12 @@ variable "cidr_blocks" {
   description = "List of CIDR blocks that should be allowed access to the Aurora cluster"
 }
 
+variable "kms_key_arn" {
+  type        = string
+  default     = null
+  description = "The KMS key ARN used for the storage encryption"
+}
+
 variable "kms_key_id" {
   type        = string
   default     = null
@@ -26,4 +32,9 @@ variable "subnet_ids" {
 variable "tags" {
   type        = map(string)
   description = "A mapping of tags to assign to the bucket"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID to deploy lambda"
 }

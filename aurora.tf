@@ -73,11 +73,11 @@ module "rds_user_management_lambda" {
   create_vpc_secm_endpoint = true
   create_vpc_rds_endpoint  = true
   deploy_password_rotation = true
-  kms_key_id               = aws_kms_key.kms_key_rds_secrets.key_id
-  kms_key_arn              = aws_kms_key.kms_key_rds_secrets.arn
+  kms_key_id               = var.kms_key_id
+  kms_key_arn              = var.kms_key_arn
   sql_users                = {}
-  subnet_ids               = module.jeffrey_vpc.private_subnets
-  vpc_id                   = module.jeffrey_vpc.vpc_id
+  subnet_ids               = var.subnet_ids
+  vpc_id                   = var.vpc_id
 
   providers = {
     aws = aws
