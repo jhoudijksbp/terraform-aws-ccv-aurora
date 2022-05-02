@@ -8,7 +8,6 @@ locals {
     for k, v in var.aurora_clusters : {
       apply_immediately                   = try(v.apply_immediately, true)
       backup_retention_period             = try(v.backup_retention_period, 2)
-      cidr_blocks                         = v.cidr_blocks
       cluster_family                      = try(v.cluster_family, "aurora-mysql5.7")
       cluster_parameters                  = try(v.cluster_parameters, [])
       database_parameters                 = try(v.database_parameters, [])
@@ -20,12 +19,10 @@ locals {
       iam_database_authentication_enabled = try(v.iam_database_authentication_enabled, true)
       instance_class                      = try(v.instance_class, "db.r5.large")
       instance_count                      = try(v.instance_count, 1)
-      kms_key_id                          = v.kms_key_id
       master_username                     = try(v.master_username, "ccv_admin")
       monitoring_interval                 = try(v.monitoring_interval, 30)
       performance_insights                = try(v.performance_insights, true)
       stack                               = replace(v.stack, "_", "-")
-      subnet_ids                          = v.subnet_ids
   }])
 }
 
@@ -46,7 +43,7 @@ module "rds_aurora" {
   stack                               = each.value.stack
   apply_immediately                   = each.value.apply_immediately
   backup_retention_period             = each.value.backup_retention_period
-  cidr_blocks                         = each.value.cidr_blocks
+  cidr_blocks                         = var.cidr_blocks
   cluster_family                      = each.value.cluster_family
   cluster_parameters                  = each.value.cluster_parameters
   deletion_protection                 = each.value.deletion_protection
@@ -58,11 +55,29 @@ module "rds_aurora" {
   iam_database_authentication_enabled = each.value.iam_database_authentication_enabled
   instance_class                      = each.value.instance_class
   instance_count                      = each.value.instance_count
-  kms_key_id                          = each.value.kms_key_id
+  kms_key_id                          = var.kms_key_id
   monitoring_interval                 = each.value.monitoring_interval
   password                            = random_password.rds_aurora_random_password.result
   performance_insights                = each.value.performance_insights
-  subnet_ids                          = each.value.subnet_ids
+  subnet_ids                          = var.subnet_ids
   username                            = each.value.master_username
   tags                                = var.tags
+}
+
+module "rds_user_management_lambda" {
+  source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
+  version                  = "1.0.0"
+  create_kms_iam_policy    = true
+  create_vpc_secm_endpoint = true
+  create_vpc_rds_endpoint  = true
+  deploy_password_rotation = true
+  kms_key_id               = aws_kms_key.kms_key_rds_secrets.key_id
+  kms_key_arn              = aws_kms_key.kms_key_rds_secrets.arn
+  sql_users                = local.sql_users
+  subnet_ids               = module.jeffrey_vpc.private_subnets
+  vpc_id                   = module.jeffrey_vpc.vpc_id
+
+  providers = {
+    aws = aws
+  }
 }
