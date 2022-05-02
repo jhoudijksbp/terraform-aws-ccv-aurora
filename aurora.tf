@@ -21,7 +21,7 @@ locals {
       master_username                     = try(v.master_username, "ccv_admin")
       monitoring_interval                 = try(v.monitoring_interval, 30)
       performance_insights                = try(v.performance_insights, true)
-      stack                               = replace(v.stack, "-", "_")
+      stack                               = replace(v.stack, "_", "-")
       subnet_ids                          = v.subnet_ids
   }])
 }
