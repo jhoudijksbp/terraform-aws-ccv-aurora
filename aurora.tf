@@ -15,7 +15,7 @@ locals {
       engine                              = try(v.engine, "aurora-mysql")
       engine_mode                         = try(v.engine, "provisioned")
       engine_version                      = try(v.engine_version, "5.7.mysql_aurora.2.10.2")
-      final_snapshot_identifier           = try(v.final_snapshot_identifier, "${v.stack}-fin-snapshot")
+      final_snapshot_identifier           = try(v.final_snapshot_identifier, replace("${v.stack}-fin-snapshot", "_", "-"))
       iam_database_authentication_enabled = try(v.iam_database_authentication_enabled, true)
       instance_class                      = try(v.instance_class, "db.r5.large")
       instance_count                      = try(v.instance_count, 1)
