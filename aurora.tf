@@ -73,7 +73,7 @@ module "rds_user_management_lambda" {
   deploy_password_rotation = true
   kms_key_id               = aws_kms_key.kms_key_rds_secrets.key_id
   kms_key_arn              = aws_kms_key.kms_key_rds_secrets.arn
-  sql_users                = local.sql_users
+  sql_users                = {}
   subnet_ids               = module.jeffrey_vpc.private_subnets
   vpc_id                   = module.jeffrey_vpc.vpc_id
 
