@@ -10,8 +10,8 @@ locals {
       backup_retention_period             = try(v.backup_retention_period, 2)
       cidr_blocks                         = v.cidr_blocks
       cluster_family                      = try(v.cluster_family, "aurora-mysql5.7")
-      cluster_parameters                  = try(v.cluster_parameters, null)
-      database_parameters                 = try(v.database_parameters, null)
+      cluster_parameters                  = try(v.cluster_parameters, [])
+      database_parameters                 = try(v.database_parameters, [])
       deletion_protection                 = try(v.deletion_protection, false)
       engine                              = try(v.engine, "aurora-mysql")
       engine_version                      = try(v.engine_version, "5.7.mysql_aurora.2.10.2")
