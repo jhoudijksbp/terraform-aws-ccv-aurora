@@ -14,6 +14,7 @@ locals {
       database_parameters                 = try(v.database_parameters, [])
       deletion_protection                 = try(v.deletion_protection, false)
       engine                              = try(v.engine, "aurora-mysql")
+      engine_mode                         = try(v.engine, "provisioned")
       engine_version                      = try(v.engine_version, "5.7.mysql_aurora.2.10.2")
       final_snapshot_identifier           = try(v.final_snapshot_identifier, "${v.stack}-fin-snapshot")
       iam_database_authentication_enabled = try(v.iam_database_authentication_enabled, true)
