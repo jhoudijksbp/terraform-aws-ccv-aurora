@@ -53,6 +53,7 @@ module "rds_aurora" {
   database_parameters                 = each.value.database_parameters
   enabled_cloudwatch_logs_exports     = ["audit", "error", "general", "slowquery"]
   engine                              = each.value.engine
+  engine_mode                         = each.value.engine_mode
   engine_version                      = each.value.engine_version
   iam_database_authentication_enabled = each.value.iam_database_authentication_enabled
   instance_class                      = each.value.instance_class
