@@ -52,6 +52,7 @@ module "rds_aurora" {
   engine                              = each.value.engine
   engine_mode                         = each.value.engine_mode
   engine_version                      = each.value.engine_version
+  final_snapshot_identifier           = each.value.final_snapshot_identifier
   iam_database_authentication_enabled = each.value.iam_database_authentication_enabled
   instance_class                      = each.value.instance_class
   instance_count                      = each.value.instance_count
