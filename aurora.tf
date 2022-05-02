@@ -1,7 +1,7 @@
 # TODO
 # : Add User management module functionality
 # : Add Montoring module
-# : Database/cluster parameter change (how)
+# : Database/cluster parameter change (how) 
 
 locals {
   aurora_clusters_map = flatten([
