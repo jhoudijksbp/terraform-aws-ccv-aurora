@@ -65,6 +65,7 @@ module "rds_aurora" {
 }
 
 module "rds_user_management_lambda" {
+  count                    = 0
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
   version                  = "1.0.0"
   create_kms_iam_policy    = true

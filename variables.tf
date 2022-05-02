@@ -14,6 +14,10 @@ variable "kms_key_id" {
   description = "The KMS key ID used for the storage encryption"
 }
 
+variable "sql_users" {
+  description = "List of SQL users which should be managed"
+}
+
 variable "subnet_ids" {
   type        = list(string)
   description = "List of subnet IDs to deploy Aurora in"
