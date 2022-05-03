@@ -1,7 +1,8 @@
 # TODO
-# : Add User management module functionality
+# : Add User management module functionality (ongoing)
 # : Add Montoring module
-# : Database/cluster parameter change (how) 
+# : Cluster parameter change
+# : Database parameter change
 
 locals {
   aurora_clusters_map = flatten([
@@ -66,7 +67,7 @@ module "rds_aurora" {
 }
 
 module "rds_user_management_lambda" {
-  count                    = 0
+  count                    = "${length(var.sql_users) > 0 ? 1 : 0}"
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
   version                  = "1.0.0"
   create_kms_iam_policy    = true
