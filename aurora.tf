@@ -34,7 +34,7 @@ locals {
   sql_users_map = [
     for k, v in var.sql_users : {
       authentication         = try(v.authentication, "credentials")
-      password               = try(v.password, "will_get_generated_later")
+      password               = try(v.password, random_password.rds_aurora_random_password.result)
       privileges             = try(v.grants, "")
       rds_cluster_identifier = module.rds_aurora[replace(v.stack, "_", "-")].cluster_identifier
       rds_endpoint           = module.rds_aurora[replace(v.stack, "_", "-")].endpoint
