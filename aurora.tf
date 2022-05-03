@@ -86,7 +86,7 @@ module "rds_aurora" {
   tags                                = var.tags
 }
 
-module "rds_user_management_lambda" {
+module "rds_user_management" {
   count                    = "${length(var.sql_users) > 0 ? 1 : 0}"
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
   version                  = "1.0.1"
@@ -99,10 +99,6 @@ module "rds_user_management_lambda" {
   sql_users                = local.sql_users_map
   subnet_ids               = var.subnet_ids
   vpc_id                   = var.vpc_id
-
-  depends_on = [
-    module.rds_aurora,
-  ]
 
   providers = {
     aws = aws
