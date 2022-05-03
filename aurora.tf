@@ -3,6 +3,10 @@
 # : Add Montoring module
 # : Cluster parameter change
 # : Database parameter change
+# : Check perforamnce insights
+# : Check enhanced monitoring
+# : Check auditing
+# : Fix warnings
 
 locals {
   aurora_clusters_map = flatten([
