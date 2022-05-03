@@ -30,6 +30,21 @@ locals {
       performance_insights                = try(v.performance_insights, true)
       stack                               = replace(v.stack, "_", "-")
   }])
+
+  sql_users_map = [
+    for k, v in var.sql_users : {
+      authentication         = try(v.authentication, "credentials")
+      password               = try(v.password, "will_get_generated_later")
+      privileges             = try(v.grants, "")
+      rds_cluster_identifier = module.rds_aurora[replace(v.stack, "_", "-")].cluster_identifier
+      rds_endpoint           = module.rds_aurora[replace(v.stack, "_", "-")].endpoint
+      rds_port               = module.rds_aurora[replace(v.stack, "_", "-")].port
+      rotation               = try(v.rotation, false)
+      master_user            = try(v.master_user, false)
+      src_host               = try(v.src_host, "%")
+      username               = try(v.username, k)
+    }
+  ]
 }
 
 # Password for master user. This will get overwritten by password rotation immediately
