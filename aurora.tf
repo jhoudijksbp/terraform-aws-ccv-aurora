@@ -84,6 +84,10 @@ module "rds_user_management_lambda" {
   subnet_ids               = var.subnet_ids
   vpc_id                   = var.vpc_id
 
+  depends_on = [
+    module.rds_aurora,
+  ]
+
   providers = {
     aws = aws
   }
