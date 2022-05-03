@@ -96,7 +96,7 @@ module "rds_user_management_lambda" {
   deploy_password_rotation = true
   kms_key_id               = var.kms_key_id
   kms_key_arn              = var.kms_key_arn
-  sql_users                = {}
+  sql_users                = local.sql_users_map
   subnet_ids               = var.subnet_ids
   vpc_id                   = var.vpc_id
 
