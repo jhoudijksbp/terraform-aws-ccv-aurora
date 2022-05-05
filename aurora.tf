@@ -89,7 +89,7 @@ module "rds_aurora" {
 module "rds_user_management" {
   count                    = "${length(var.sql_users) > 0 ? 1 : 0}"
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
-  version                  = "1.0.1"
+  version                  = "1.0.2"
   create_kms_iam_policy    = true
   create_vpc_secm_endpoint = true
   create_vpc_rds_endpoint  = true
