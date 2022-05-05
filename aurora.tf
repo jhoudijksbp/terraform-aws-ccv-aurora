@@ -1,13 +1,13 @@
 # TODO
-# : Add User management module functionality (ongoing)
-# : Add Montoring module
 # : Check master_username
+# : Add Montoring module
 # : Cluster parameter change
 # : Database parameter change
 # : Check perforamnce insights
 # : Check enhanced monitoring
 # : Check auditing
 # : Fix warnings
+# : Test this module
 
 locals {
   aurora_clusters_map = flatten([
