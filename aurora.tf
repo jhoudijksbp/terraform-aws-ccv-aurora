@@ -1,5 +1,4 @@
 # TODO
-# : Check master_username
 # : Add Montoring module
 # : Cluster parameter change
 # : Database parameter change
@@ -102,4 +101,15 @@ module "rds_user_management" {
   providers = {
     aws = aws
   }
+}
+
+module "rds_monitoring" {
+  count             = "${var.enable_cloudwatch_monitoring == true ? 1 : 0}"
+  source            = "app.terraform.io/ccv-group/rds-monitoring//aws"
+  version           = "1.0.0"
+  email_endpoint    = var.email_endpoint
+  kms_key_id        = var.kms_key_arn
+  rds_instance_ids  = mnodule.rds_aurora[*].instance_ids
+  send_email_alerts = "${length(var.email_endpoint) > 0 ? 1 : 0}"
+  tags              = var.tags
 }

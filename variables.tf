@@ -8,6 +8,18 @@ variable "cidr_blocks" {
   description = "List of CIDR blocks that should be allowed access to the Aurora cluster"
 }
 
+variable "enable_cloudwatch_monitoring" {
+  type        = bool
+  default     = true
+  description = "Enable Cloudwatch monitoring module"
+}
+
+variable "email_endpoint" {
+  type = string
+  default = ""
+  description = "E-mail for Cloudwatch notifications"
+}
+
 variable "kms_key_arn" {
   type        = string
   default     = null
