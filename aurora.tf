@@ -77,7 +77,7 @@ module "rds_aurora" {
   iam_database_authentication_enabled = each.value.iam_database_authentication_enabled
   instance_class                      = each.value.instance_class
   instance_count                      = each.value.instance_count
-  kms_key_id                          = var.kms_key_id
+  kms_key_id                          = var.kms_key_arn
   monitoring_interval                 = each.value.monitoring_interval
   password                            = random_password.rds_aurora_random_password.result
   performance_insights                = each.value.performance_insights
@@ -94,7 +94,6 @@ module "rds_user_management" {
   create_vpc_secm_endpoint = true
   create_vpc_rds_endpoint  = true
   deploy_password_rotation = true
-  kms_key_id               = var.kms_key_id
   kms_key_arn              = var.kms_key_arn
   sql_users                = local.sql_users_map
   subnet_ids               = var.subnet_ids

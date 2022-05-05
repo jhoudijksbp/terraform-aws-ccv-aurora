@@ -14,12 +14,6 @@ variable "kms_key_arn" {
   description = "The KMS key ARN used for the storage encryption"
 }
 
-variable "kms_key_id" {
-  type        = string
-  default     = null
-  description = "The KMS key ID used for the storage encryption"
-}
-
 variable "sql_users" {
   description = "List of SQL users which should be managed"
 }
