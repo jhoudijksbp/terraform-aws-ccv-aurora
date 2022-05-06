@@ -104,10 +104,6 @@ module "rds_user_management" {
   }
 }
 
-#rds_instance_ids  = module.rds_aurora[*].instance_ids
-#values(module.rds_aurora)[*].instance_ids[*]
-#[for <ITEM> in <LIST> : <OUTPUT>]
-#values(aws_secretsmanager_secret.application-secret)[*]["arn"]
 module "rds_monitoring" {
   count             = "${var.enable_cloudwatch_monitoring == true ? 1 : 0}"
   source            = "app.terraform.io/ccv-group/rds-monitoring/aws"
