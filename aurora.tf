@@ -60,7 +60,7 @@ resource "random_password" "rds_aurora_random_password" {
 
 module "rds_aurora" {
   for_each                            = { for cluster in local.aurora_clusters_map : cluster.stack => cluster }
-  source                              = "github.com/schubergphilis/terraform-aws-mcaf-aurora?ref=v0.4.5"
+  source                              = "github.com/schubergphilis/terraform-aws-mcaf-aurora?ref=v0.4.7"
   stack                               = each.value.stack
   apply_immediately                   = each.value.apply_immediately
   backup_retention_period             = each.value.backup_retention_period
