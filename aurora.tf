@@ -107,13 +107,13 @@ module "rds_user_management" {
 #rds_instance_ids  = module.rds_aurora[*].instance_ids
 #values(module.rds_aurora)[*].instance_ids[*]
 #[for <ITEM> in <LIST> : <OUTPUT>]
-#module "rds_monitoring" {
-#  count             = "${var.enable_cloudwatch_monitoring == true ? 1 : 0}"
-#  source            = "app.terraform.io/ccv-group/rds-monitoring/aws"
-#  version           = "1.0.0"
-#  email_endpoint    = var.email_endpoint
-#  kms_key_id        = var.kms_key_arn
-#  rds_instance_ids  = values(module.rds_aurora)[*].instance_ids[*]
-#  send_email_alerts = "${length(var.email_endpoint) > 0 ? true : false}"
-#  tags              = var.tags
-#}
+module "rds_monitoring" {
+  count             = "${var.enable_cloudwatch_monitoring == true ? 1 : 0}"
+  source            = "app.terraform.io/ccv-group/rds-monitoring/aws"
+  version           = "1.0.0"
+  email_endpoint    = var.email_endpoint
+  kms_key_id        = var.kms_key_arn
+  rds_instance_ids  = [for item in rds_aurora : item.instance_ids[*]]
+  send_email_alerts = "${length(var.email_endpoint) > 0 ? true : false}"
+  tags              = var.tags
+}
