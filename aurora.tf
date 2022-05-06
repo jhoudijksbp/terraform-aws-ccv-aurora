@@ -105,7 +105,7 @@ module "rds_user_management" {
 
 module "rds_monitoring" {
   count             = "${var.enable_cloudwatch_monitoring == true ? 1 : 0}"
-  source            = "app.terraform.io/ccv-group/rds-monitoring//aws"
+  source            = "app.terraform.io/ccv-group/rds-monitoring/aws"
   version           = "1.0.0"
   email_endpoint    = var.email_endpoint
   kms_key_id        = var.kms_key_arn
