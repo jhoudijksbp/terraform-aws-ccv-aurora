@@ -1,5 +1,6 @@
 # TODO
 # : Add Montoring module
+# : Be able to configure thresholds for monitoring
 # : Cluster parameter change
 # : Database parameter change
 # : Check perforamnce insights
@@ -109,7 +110,7 @@ module "rds_monitoring" {
   version           = "1.0.0"
   email_endpoint    = var.email_endpoint
   kms_key_id        = var.kms_key_arn
-  rds_instance_ids  = mnodule.rds_aurora[*].instance_ids
-  send_email_alerts = "${length(var.email_endpoint) > 0 ? 1 : 0}"
+  rds_instance_ids  = module.rds_aurora[*].instance_ids
+  send_email_alerts = "${length(var.email_endpoint) > 0 ? true : false}"
   tags              = var.tags
 }
