@@ -111,7 +111,7 @@ module "rds_monitoring" {
   version           = "1.0.0"
   email_endpoint    = var.email_endpoint
   kms_key_id        = var.kms_key_arn
-  rds_instance_ids  = [values(module.rds_aurora)[*].instance_ids]
+  rds_instance_ids  = [for rds_aurora in module.rds_aurora : rds_aurora.instance_ids]
   send_email_alerts = "${length(var.email_endpoint) > 0 ? true : false}"
   tags              = var.tags
 }
