@@ -3,8 +3,6 @@
 # : Be able to configure thresholds for monitoring
 # : Cluster parameter change
 # : Database parameter change
-# : Check perforamnce insights
-# : Check enhanced monitoring
 # : Check auditing
 # : Fix warnings
 # : Test this module
@@ -90,9 +88,9 @@ module "rds_user_management" {
   count                    = "${length(var.sql_users) > 0 ? 1 : 0}"
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
   version                  = "1.0.4"
-  create_kms_iam_policy    = true
-  create_vpc_secm_endpoint = true
-  create_vpc_rds_endpoint  = true
+  create_kms_iam_policy    = var.create_kms_iam_policy
+  create_vpc_secm_endpoint = var.create_vpc_secm_endpoint
+  create_vpc_rds_endpoint  = var.create_vpc_rds_endpoint
   deploy_password_rotation = true
   kms_key_arn              = var.kms_key_arn
   sql_users                = local.sql_users_map

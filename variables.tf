@@ -8,6 +8,24 @@ variable "cidr_blocks" {
   description = "List of CIDR blocks that should be allowed access to the Aurora cluster"
 }
 
+variable "create_kms_iam_policy" {
+  type        = bool
+  default     = false
+  description = "Create a IAM policy for permissions on KMS keys for password rotation Lambda"
+}
+
+variable "create_vpc_rds_endpoint" {
+  type        = bool
+  default     = false
+  description = "Create a VPC endpoint for RDS"
+}
+
+variable "create_vpc_secm_endpoint" {
+  type        = bool
+  default     = false
+  description = "Create a VPC endpoint for SSM"
+}
+
 variable "enable_cloudwatch_monitoring" {
   type        = bool
   default     = true
