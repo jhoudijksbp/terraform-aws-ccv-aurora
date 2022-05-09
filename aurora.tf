@@ -5,21 +5,24 @@
 # : Test this module
 
 locals {
-  database_parameters_default = tomap([{name  = "max_connections",
-                                 value = "3000",
-                                }, {
-                                name  = "general_log",
-                                value = "0",
-                                }, {
-                                name  = "slow_query_log",
-                                value = "1",
-                                }, {
-                                name  = "max_connect_errors",
-                                value = "4294967295",
-                                }, {
-                                name  = "max_allowed_packet",
-                                value = "67108864",
-                              }])
+
+   database_parameters_default = {
+    "max_connections" = {
+      value = 3000
+    },
+    "general_log" = {
+      value = 0
+    },
+    "slow_query_log" = {
+      value = 1
+    },
+    "max_connect_errors" = {
+      value = 4294967295
+    },
+    "max_allowed_packet" = {
+      value = 67108864
+    }
+   }
 
   aurora_clusters_map = flatten([
     for k, v in var.aurora_clusters : {
@@ -50,11 +53,8 @@ locals {
       cluster_parameters                  = try(v.cluster_parameters, [])
 
       database_parameters = tomap({
-        for k in setunion(keys(local.database_parameters_default), keys(tomap(try(v.database_parameters, [])))) : k => {
-          name = tostring(coalesce(
-            try(v.database_parameters[k].name, null),
-            try(local.database_parameters_default[k].name, null),
-          ))
+        for k in setunion(keys(local.database_parameters_default), keys(try(v.database_parameters, {}))) : k => {
+          name = k
           value = tostring(coalesce(
             try(v.database_parameters[k].value, null),
             try(local.database_parameters_default[k].value, null),
@@ -62,6 +62,8 @@ locals {
         }
       })
   }])
+
+  #https://discuss.hashicorp.com/t/override-a-single-value-in-a-map/15042/2
 
   sql_users_map = [
     for k, v in var.sql_users : {
