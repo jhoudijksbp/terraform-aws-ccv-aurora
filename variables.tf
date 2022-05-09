@@ -26,12 +26,6 @@ variable "create_vpc_secm_endpoint" {
   description = "Create a VPC endpoint for SSM"
 }
 
-variable "enable_cloudwatch_monitoring" {
-  type        = bool
-  default     = true
-  description = "Enable Cloudwatch monitoring module"
-}
-
 variable "email_endpoint" {
   type = string
   default = ""

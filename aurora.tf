@@ -1,6 +1,5 @@
 # TODO
-# : Add Montoring module
-# : Be able to configure thresholds for monitoring
+# : Montitoring configurable per cluster
 # : Cluster parameter change
 # : Database parameter change
 # : Check auditing
@@ -14,11 +13,17 @@ locals {
       backup_retention_period             = try(v.backup_retention_period, 2)
       cluster_family                      = try(v.cluster_family, "aurora-mysql5.7")
       cluster_parameters                  = try(v.cluster_parameters, [])
+      cpu_utilization_too_high_threshold  = try(v.cpu_utilization_too_high_threshold, 90)
+      disable_actions_blocks              = try(v.disable_actions_blocks, [])
+      disable_actions_cpu                 = try(v.disable_actions_cpu, [])
+      disable_actions_lag                 = try(v.disable_actions_lag, [])
       database_parameters                 = try(v.database_parameters, [])
       deletion_protection                 = try(v.deletion_protection, false)
+      email_endpoint                      = try(v.email_endpoint, "")
       engine                              = try(v.engine, "aurora-mysql")
       engine_mode                         = try(v.engine, "provisioned")
       engine_version                      = try(v.engine_version, "5.7.mysql_aurora.2.10.2")
+      evaluation_period                   = try(v.evaluation_period, 5)
       final_snapshot_identifier           = try(v.final_snapshot_identifier, replace("${v.stack}-fin-snapshot", "_", "-"))
       iam_database_authentication_enabled = try(v.iam_database_authentication_enabled, true)
       instance_class                      = try(v.instance_class, "db.r5.large")
@@ -26,7 +31,9 @@ locals {
       master_username                     = try(v.master_username, "ccv_admin")
       monitoring_interval                 = try(v.monitoring_interval, 30)
       performance_insights                = try(v.performance_insights, true)
+      replicalag_threshold                = try(v.replicalag_threshold, 300000)
       stack                               = replace(v.stack, "_", "-")
+      statistic_period                    = try(v.statistic_period, 60)
   }])
 
   sql_users_map = [
@@ -84,6 +91,24 @@ module "rds_aurora" {
   tags                                = var.tags
 }
 
+module "rds_monitoring" {
+  for_each                           = { for cluster in local.aurora_clusters_map : cluster.stack => cluster }
+  source                             = "app.terraform.io/ccv-group/rds-monitoring/aws"
+  version                            = "1.0.0"
+  cpu_utilization_too_high_threshold = each.value.cpu_utilization_too_high_threshold
+  disable_actions_blocks             = each.value.disable_actions_blocks
+  disable_actions_cpu                = each.value.disable_actions_cpu
+  disable_actions_lag                = each.value.disable_actions_lag
+  email_endpoint                     = each.value.email_endpoint
+  evaluation_period                  = each.value.evaluation_period
+  kms_key_id                         = var.kms_key_arn
+  rds_instance_ids                   = module.rds_aurora[replace(each.value.stack, "_", "-")].rds_instance_ids
+  replicalag_threshold               = each.value.replicalag_threshold
+  send_email_alerts                  = "${length(each.value.email_endpoint) > 0 ? true : false}"
+  statistic_period                   = each.value.statistic_period
+  tags                               = var.tags
+}
+
 module "rds_user_management" {
   count                    = "${length(var.sql_users) > 0 ? 1 : 0}"
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
@@ -100,15 +125,4 @@ module "rds_user_management" {
   providers = {
     aws = aws
   }
-}
-
-module "rds_monitoring" {
-  count             = "${var.enable_cloudwatch_monitoring == true ? 1 : 0}"
-  source            = "app.terraform.io/ccv-group/rds-monitoring/aws"
-  version           = "1.0.0"
-  email_endpoint    = var.email_endpoint
-  kms_key_id        = var.kms_key_arn
-  rds_instance_ids  = flatten(values(module.rds_aurora)[*].instance_ids)
-  send_email_alerts = "${length(var.email_endpoint) > 0 ? true : false}"
-  tags              = var.tags
 }
