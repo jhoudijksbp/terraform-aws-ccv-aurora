@@ -100,6 +100,21 @@ locals {
   
   }])
 
+  master_users_map = [
+    for k,v in var.aurora_clusters : {
+      authentication         = "credentials"
+      password               = random_password.rds_aurora_random_password.result
+      privileges             = ""
+      rds_cluster_identifier = module.rds_aurora[v.stack].cluster_identifier
+      rds_endpoint           = module.rds_aurora[v.stack].endpoint
+      rds_port               = module.rds_aurora[v.stack].port
+      rotation               = true
+      master_user            = true
+      src_host               = try(v.master_user_src_host, "%")
+      username               = v.master_username
+    }
+  ]
+
   sql_users_map = [
     for k, v in var.sql_users : {
       authentication         = try(v.authentication, "credentials")
@@ -114,8 +129,17 @@ locals {
       username               = try(v.username, k)
     }
   ]
+
+  all_users = concat(local.master_users_map, local.sql_users_map)
 }
 
+
+    rds_test_one_admin = {
+      master_user = true
+      rotation    = true
+      stack       = local.rds_aurora_clusters["rds_test_one"].stack
+      username    = local.rds_aurora_clusters["rds_test_one"].master_username
+    }
 # Password for master user. This will get overwritten by password rotation immediately
 resource "random_password" "rds_aurora_random_password" {
   length           = 40
@@ -182,7 +206,7 @@ module "rds_user_management" {
   create_vpc_rds_endpoint  = var.create_vpc_rds_endpoint
   deploy_password_rotation = true
   kms_key_arn              = var.kms_key_arn
-  sql_users                = local.sql_users_map
+  sql_users                = local.all_users
   subnet_ids               = var.subnet_ids
   vpc_id                   = var.vpc_id
 
