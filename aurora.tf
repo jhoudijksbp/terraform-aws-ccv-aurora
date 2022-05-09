@@ -6,6 +6,39 @@
 
 locals {
 
+   cluster_parameters_default = {
+     "character_set_server" = {
+       value = "utf8mb4"
+     },
+     "character_set_client" = {
+       value = "utf8mb4"
+     },
+     "character_set_connection" = {
+       value = "utf8mb4"
+     },
+     "character_set_connection" = {
+       value = "utf8mb4"
+     },
+     "character_set_filesystem" = {
+       value = "utf8mb4"
+     },
+     "slow_query_log" = {
+       value = 1
+     },
+     "server_audit_logging" = {
+       value = 1
+     },
+     "server_audit_logs_upload" = {
+       value = 1
+     },
+     "server_audit_events" = {
+       value = "CONNECT,QUERY"
+     },
+     "server_audit_incl_users" = {
+       value = "admin_user"
+     },
+   }
+
    database_parameters_default = {
     "max_connections" = {
       value = 3000
@@ -50,7 +83,16 @@ locals {
       stack                               = replace(v.stack, "_", "-")
       statistic_period                    = try(v.statistic_period, 60)
 
-      cluster_parameters                  = try(v.cluster_parameters, [])
+      cluster_parameters = [
+        for k in setunion(keys(local.cluster_parameters_default), keys(try(v.cluster_parameters, {}))) : {
+          name = k
+          value = tostring(coalesce(
+            try(v.cluster_parameters[k].value, null),
+            k == "server_audit_incl_users" ? v.master_username : local.cluster_parameters_default[k].value,
+            try(local.cluster_parameters_default[k].value, null),
+          ))
+        }
+      ]
 
       database_parameters = [
         for k in setunion(keys(local.database_parameters_default), keys(try(v.database_parameters, {}))) : {
@@ -59,11 +101,10 @@ locals {
             try(v.database_parameters[k].value, null),
             try(local.database_parameters_default[k].value, null),
           ))
-        }]
+        }
+      ]
   
   }])
-
-  #https://discuss.hashicorp.com/t/override-a-single-value-in-a-map/15042/2
 
   sql_users_map = [
     for k, v in var.sql_users : {
