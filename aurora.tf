@@ -1,5 +1,6 @@
 locals {
 
+   # Default set of cluster parameters. It is possible to override this per parameter.
    cluster_parameters_default = {
      "character_set_server" = {
        value = "utf8mb4"
@@ -33,6 +34,7 @@ locals {
      },
    }
 
+   # Default set of database parameters. It is possible to override this per parameter.
    database_parameters_default = {
     "max_connections" = {
       value = 3000
@@ -51,6 +53,7 @@ locals {
     }
    }
 
+  # A map of al cluster settings. This map is used to configure the RDS Aurora MCAF and RDS Aurora monitoring module
   aurora_clusters_map = flatten([
     for k, v in var.aurora_clusters : {
       apply_immediately                   = try(v.apply_immediately, true)
@@ -77,6 +80,7 @@ locals {
       stack                               = replace(v.stack, "_", "-")
       statistic_period                    = try(v.statistic_period, 60)
 
+      # This is allowing to override cluster parameters in configuring this module
       cluster_parameters = [
         for k in setunion(keys(local.cluster_parameters_default), keys(try(v.cluster_parameters, {}))) : {
           name = k
@@ -88,6 +92,7 @@ locals {
         }
       ]
 
+      # This is allowing to override database parameters in configuring this module
       database_parameters = [
         for k in setunion(keys(local.database_parameters_default), keys(try(v.database_parameters, {}))) : {
           name = k
@@ -100,6 +105,7 @@ locals {
   
   }])
 
+  # We need a master user for each cluster. Based on this map secret is created and password rotation is enabled.
   master_users_map = [
     for k,v in var.aurora_clusters : {
       authentication         = "credentials"
@@ -115,21 +121,17 @@ locals {
     }
   ]
 
-  monitoring_map = [
-    for k,v in var.aurora_clusters : {
-      cpu_utilization_too_high_threshold = try(v.cpu_utilization_too_high_threshold, 90)
-      disable_actions_blocks             = try(v.disable_actions_blocks, [])
-      disable_actions_cpu                = try(v.disable_actions_cpu, [])
-      disable_actions_lag                = try(v.disable_actions_lag, [])
-      deletion_protection                = try(v.deletion_protection, false)
-      email_endpoint                     = try(v.email_endpoint, "")
-      evaluation_period                  = try(v.evaluation_period, 5)
-      replicalag_threshold               = try(v.replicalag_threshold, 300000)
-      stack                              = replace(v.stack, "_", "-")
-      statistic_period                   = try(v.statistic_period, 60)
-    }
-  ]
+  # We need this because we can't use the instance_ids (from rds_aurora module) in the for_each of the rds monitoring module
+  monitoring_instances_list = flatten([
+    for k,v in var_aurora_clusters : [
+      for i in range(var.instance_count) : {
+        stack   = v.stack
+        counter = i
+      }
+    ]
+  ])
 
+  # We need a map for all the configured SQL users. This will be used to create secrets, password rotation in the RDS user management module
   sql_users_map = [
     for k, v in var.sql_users : {
       authentication         = try(v.authentication, "credentials")
@@ -145,6 +147,7 @@ locals {
     }
   ]
 
+  # Concatenation of the normal SQL users and all the master users.
   all_users = concat(local.master_users_map, local.sql_users_map)
 }
 
@@ -159,6 +162,7 @@ resource "random_password" "rds_aurora_random_password" {
   }
 }
 
+# Deploy all RDS cluster/instances
 module "rds_aurora" {
   for_each                            = { for cluster in local.aurora_clusters_map : cluster.stack => cluster }
   source                              = "github.com/schubergphilis/terraform-aws-mcaf-aurora?ref=v0.4.7"
@@ -187,10 +191,12 @@ module "rds_aurora" {
   tags                                = var.tags
 }
 
+# deploy the monitoring for all instances
 module "rds_monitoring" {
-  for_each                           = { for cluster in local.monitoring_map : cluster.stack => cluster }
-  source                             = "app.terraform.io/ccv-group/rds-monitoring/aws"
-  version                            = "1.0.0"
+  for_each                           = { for cluster in local.aurora_clusters_map : cluster.stack => cluster }
+  source                             = "github.com/jhoudijksbp/terraform-aws-rds-monitoring/tree/change_for_each"
+  #source                             = "app.terraform.io/ccv-group/rds-monitoring/aws"
+  #version                            = "1.0.0"
   cpu_utilization_too_high_threshold = each.value.cpu_utilization_too_high_threshold
   disable_actions_blocks             = each.value.disable_actions_blocks
   disable_actions_cpu                = each.value.disable_actions_cpu
@@ -198,6 +204,7 @@ module "rds_monitoring" {
   email_endpoint                     = each.value.email_endpoint
   evaluation_period                  = each.value.evaluation_period
   kms_key_id                         = var.kms_key_arn
+  monitoring_instances_list          = local.monitoring_instances_list
   rds_instance_ids                   = module.rds_aurora[each.value.stack].instance_ids
   replicalag_threshold               = each.value.replicalag_threshold
   send_email_alerts                  = "${length(each.value.email_endpoint) > 0 ? true : false}"
@@ -205,6 +212,7 @@ module "rds_monitoring" {
   tags                               = var.tags
 }
 
+# Deploy usermanagement and password rotation
 module "rds_user_management" {
   count                    = "${length(var.sql_users) > 0 ? 1 : 0}"
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
