@@ -5,7 +5,7 @@
 # : Test this module
 
 locals {
-  database_parameters_default =[{name  = "max_connections",
+  database_parameters_default = tomap([{name  = "max_connections",
                                  value = "3000",
                                 }, {
                                 name  = "general_log",
@@ -19,7 +19,7 @@ locals {
                                 }, {
                                 name  = "max_allowed_packet",
                                 value = "67108864",
-                              }]
+                              }])
 
   aurora_clusters_map = flatten([
     for k, v in var.aurora_clusters : {
@@ -50,7 +50,7 @@ locals {
       cluster_parameters                  = try(v.cluster_parameters, [])
 
       database_parameters = tomap({
-        for k in setunion(keys(local.database_parameters_default), keys(try(v.database_parameters, []))) : k => {
+        for k in setunion(keys(local.database_parameters_default), keys(tomap(try(v.database_parameters, [])))) : k => {
           name = tostring(coalesce(
             try(v.database_parameters[k].name, null),
             try(local.database_parameters_default[k].name, null),
