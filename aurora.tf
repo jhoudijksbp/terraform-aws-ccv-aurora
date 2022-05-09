@@ -133,13 +133,6 @@ locals {
   all_users = concat(local.master_users_map, local.sql_users_map)
 }
 
-
-    rds_test_one_admin = {
-      master_user = true
-      rotation    = true
-      stack       = local.rds_aurora_clusters["rds_test_one"].stack
-      username    = local.rds_aurora_clusters["rds_test_one"].master_username
-    }
 # Password for master user. This will get overwritten by password rotation immediately
 resource "random_password" "rds_aurora_random_password" {
   length           = 40
