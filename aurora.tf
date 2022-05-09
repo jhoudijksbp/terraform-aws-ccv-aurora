@@ -52,11 +52,11 @@ locals {
       database_parameters = tomap({
         for k in setunion(keys(local.database_parameters_default), keys(try(v.database_parameters, []))) : k => {
           name = tostring(coalesce(
-            try(v.database_parameters, null),
+            try(v.database_parameters[k].name, null),
             try(local.database_parameters_default[k].name, null),
           ))
           value = tostring(coalesce(
-            try(var.database_parameters[k].value, null),
+            try(v.database_parameters[k].value, null),
             try(local.database_parameters_default[k].value, null),
           ))
         }
