@@ -115,6 +115,21 @@ locals {
     }
   ]
 
+  monitoring_map = [
+    for k,v in var.aurora_clusters : {
+      cpu_utilization_too_high_threshold = try(v.cpu_utilization_too_high_threshold, 90)
+      disable_actions_blocks             = try(v.disable_actions_blocks, [])
+      disable_actions_cpu                = try(v.disable_actions_cpu, [])
+      disable_actions_lag                = try(v.disable_actions_lag, [])
+      deletion_protection                = try(v.deletion_protection, false)
+      email_endpoint                     = try(v.email_endpoint, "")
+      evaluation_period                  = try(v.evaluation_period, 5)
+      replicalag_threshold               = try(v.replicalag_threshold, 300000)
+      stack                              = replace(v.stack, "_", "-")
+      statistic_period                   = try(v.statistic_period, 60)
+    }
+  ]
+
   sql_users_map = [
     for k, v in var.sql_users : {
       authentication         = try(v.authentication, "credentials")
@@ -173,7 +188,7 @@ module "rds_aurora" {
 }
 
 module "rds_monitoring" {
-  for_each                           = { for cluster in local.aurora_clusters_map : cluster.stack => cluster }
+  for_each                           = { for cluster in local.monitoring_map : cluster.stack => cluster }
   source                             = "app.terraform.io/ccv-group/rds-monitoring/aws"
   version                            = "1.0.0"
   cpu_utilization_too_high_threshold = each.value.cpu_utilization_too_high_threshold
@@ -183,7 +198,7 @@ module "rds_monitoring" {
   email_endpoint                     = each.value.email_endpoint
   evaluation_period                  = each.value.evaluation_period
   kms_key_id                         = var.kms_key_arn
-  rds_instance_ids                   = flatten(module.rds_aurora[each.value.stack].instance_ids)
+  rds_instance_ids                   = module.rds_aurora[each.value.stack].instance_ids
   replicalag_threshold               = each.value.replicalag_threshold
   send_email_alerts                  = "${length(each.value.email_endpoint) > 0 ? true : false}"
   statistic_period                   = each.value.statistic_period
