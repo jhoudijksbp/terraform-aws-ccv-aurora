@@ -105,9 +105,9 @@ locals {
       authentication         = "credentials"
       password               = random_password.rds_aurora_random_password.result
       privileges             = ""
-      rds_cluster_identifier = module.rds_aurora[v.stack].cluster_identifier
-      rds_endpoint           = module.rds_aurora[v.stack].endpoint
-      rds_port               = module.rds_aurora[v.stack].port
+      rds_cluster_identifier = module.rds_aurora[replace(v.stack, "_", "-")].cluster_identifier
+      rds_endpoint           = module.rds_aurora[replace(v.stack, "_", "-")].endpoint
+      rds_port               = module.rds_aurora[replace(v.stack, "_", "-")].port
       rotation               = true
       master_user            = true
       src_host               = try(v.master_user_src_host, "%")
