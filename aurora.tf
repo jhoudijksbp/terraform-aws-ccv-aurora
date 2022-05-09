@@ -102,7 +102,7 @@ module "rds_monitoring" {
   email_endpoint                     = each.value.email_endpoint
   evaluation_period                  = each.value.evaluation_period
   kms_key_id                         = var.kms_key_arn
-  rds_instance_ids                   = module.rds_aurora[each.value.stack].rds_instance_ids
+  rds_instance_ids                   = flatten(values(module.rds_aurora)[each.value.stack].instance_ids)
   replicalag_threshold               = each.value.replicalag_threshold
   send_email_alerts                  = "${length(each.value.email_endpoint) > 0 ? true : false}"
   statistic_period                   = each.value.statistic_period
