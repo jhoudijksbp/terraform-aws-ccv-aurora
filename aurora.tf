@@ -1,5 +1,4 @@
 # TODO
-# : Montitoring configurable per cluster
 # : Cluster parameter change
 # : Database parameter change
 # : Check auditing
@@ -12,12 +11,10 @@ locals {
       apply_immediately                   = try(v.apply_immediately, true)
       backup_retention_period             = try(v.backup_retention_period, 2)
       cluster_family                      = try(v.cluster_family, "aurora-mysql5.7")
-      cluster_parameters                  = try(v.cluster_parameters, [])
       cpu_utilization_too_high_threshold  = try(v.cpu_utilization_too_high_threshold, 90)
       disable_actions_blocks              = try(v.disable_actions_blocks, [])
       disable_actions_cpu                 = try(v.disable_actions_cpu, [])
       disable_actions_lag                 = try(v.disable_actions_lag, [])
-      database_parameters                 = try(v.database_parameters, [])
       deletion_protection                 = try(v.deletion_protection, false)
       email_endpoint                      = try(v.email_endpoint, "")
       engine                              = try(v.engine, "aurora-mysql")
@@ -28,12 +25,60 @@ locals {
       iam_database_authentication_enabled = try(v.iam_database_authentication_enabled, true)
       instance_class                      = try(v.instance_class, "db.r5.large")
       instance_count                      = try(v.instance_count, 1)
-      master_username                     = try(v.master_username, "ccv_admin")
+      master_username                     = v.master_username
       monitoring_interval                 = try(v.monitoring_interval, 30)
       performance_insights                = try(v.performance_insights, true)
       replicalag_threshold                = try(v.replicalag_threshold, 300000)
       stack                               = replace(v.stack, "_", "-")
       statistic_period                    = try(v.statistic_period, 60)
+
+      cluster_parameters                  = concat(try(v.cluster_parameters, []), [{name  = "character_set_server",
+                                                                              value = "utf8mb4",
+                                                                              }, {
+                                                                              name  = "character_set_client",
+                                                                              value = "utf8mb4",
+                                                                              }, {
+                                                                              name  = "character_set_connection",
+                                                                              value = "utf8mb4",
+                                                                              }, {
+                                                                              name  = "character_set_database",
+                                                                              value = "utf8mb4",
+                                                                              }, {
+                                                                              name  = "character_set_filesystem",
+                                                                              value = "utf8mb4",
+                                                                              }, {
+                                                                              name  = "slow_query_log",
+                                                                              value = "1",
+                                                                              }, {
+                                                                              name  = "server_audit_logging",
+                                                                              value = "1",
+                                                                              }, {
+                                                                              name  = "server_audit_logs_upload",
+                                                                              value = "1",
+                                                                              }, {
+                                                                              name  = "server_audit_events",
+                                                                              value = "CONNECT,QUERY",
+                                                                              }, {
+                                                                              name  = "server_audit_incl_users",
+                                                                              value = v.master_username,
+                                                                              }
+                                                                            ])
+
+      database_parameters                 = concat(try(v.database_parameters, []), [{name  = "max_connections",
+                                                                                    value = "3000",
+                                                                                    }, {
+                                                                                    name  = "general_log",
+                                                                                    value = "0",
+                                                                                    }, {
+                                                                                    name  = "slow_query_log",
+                                                                                    value = "1",
+                                                                                    }, {
+                                                                                    name  = "max_connect_errors",
+                                                                                    value = "4294967295",
+                                                                                    }, {
+                                                                                    name  = "max_allowed_packet",
+                                                                                    value = "67108864",
+                                                                                  }])
   }])
 
   sql_users_map = [
