@@ -31,8 +31,8 @@ locals {
       replicalag_threshold                = try(v.replicalag_threshold, 300000)
       stack                               = replace(v.stack, "_", "-")
       statistic_period                    = try(v.statistic_period, 60)
-
-      cluster_parameters                  = concat(try(v.cluster_parameters, []), [{name  = "character_set_server",
+      
+      cluster_parameters                  = values(zipmap(try(v.cluster_parameters, []), [{name  = "character_set_server",
                                                                               value = "utf8mb4",
                                                                               }, {
                                                                               name  = "character_set_client",
@@ -62,9 +62,9 @@ locals {
                                                                               name  = "server_audit_incl_users",
                                                                               value = v.master_username,
                                                                               }
-                                                                            ])
+                                                                            ]))
 
-      database_parameters                 = concat(try(v.database_parameters, []), [{name  = "max_connections",
+      database_parameters                 = values(zipmap(try(v.database_parameters, []), [{name  = "max_connections",
                                                                                     value = "3000",
                                                                                     }, {
                                                                                     name  = "general_log",
@@ -78,7 +78,7 @@ locals {
                                                                                     }, {
                                                                                     name  = "max_allowed_packet",
                                                                                     value = "67108864",
-                                                                                  }])
+                                                                                  }]))
   }])
 
   sql_users_map = [
