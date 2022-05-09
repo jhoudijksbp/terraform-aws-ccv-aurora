@@ -124,7 +124,7 @@ locals {
   # We need this because we can't use the instance_ids (from rds_aurora module) in the for_each of the rds monitoring module
   monitoring_instances_list = flatten([
     for k,v in var_aurora_clusters : [
-      for i in range(var.instance_count) : {
+      for i in range(try(v.instance_count, 1)) : {
         stack   = v.stack
         counter = i
       }
