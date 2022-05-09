@@ -52,7 +52,7 @@ locals {
 
       cluster_parameters                  = try(v.cluster_parameters, [])
 
-      database_parameters = tomap({
+      database_parameters = [tomap({
         for k in setunion(keys(local.database_parameters_default), keys(try(v.database_parameters, {}))) : k => {
           name = k
           value = tostring(coalesce(
@@ -60,7 +60,7 @@ locals {
             try(local.database_parameters_default[k].value, null),
           ))
         }
-      })
+      })]
   }])
 
   #https://discuss.hashicorp.com/t/override-a-single-value-in-a-map/15042/2
