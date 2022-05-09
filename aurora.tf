@@ -194,7 +194,7 @@ module "rds_aurora" {
 # deploy the monitoring for all instances
 module "rds_monitoring" {
   for_each                           = { for cluster in local.aurora_clusters_map : cluster.stack => cluster }
-  source                             = "github.com/jhoudijksbp/terraform-aws-rds-monitoring/tree/change_for_each"
+  source                             = "github.com/jhoudijksbp/terraform-aws-rds-monitoring"
   #source                             = "app.terraform.io/ccv-group/rds-monitoring/aws"
   #version                            = "1.0.0"
   cpu_utilization_too_high_threshold = each.value.cpu_utilization_too_high_threshold
