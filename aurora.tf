@@ -1,9 +1,3 @@
-# TODO
-# : Cluster parameter change
-# : Database parameter change
-# : Check auditing
-# : Test this module
-
 locals {
 
    cluster_parameters_default = {
