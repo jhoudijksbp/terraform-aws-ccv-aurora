@@ -49,10 +49,10 @@ variable "subnet_ids" {
 
 variable "tags" {
   type        = map(string)
-  description = "A mapping of tags to assign to the bucket"
+  description = "A mapping of tags to assign to all deployed resource"
 }
 
 variable "vpc_id" {
   type        = string
-  description = "VPC ID to deploy lambda"
+  description = "VPC ID to deploy several resources"
 }
