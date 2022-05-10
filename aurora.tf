@@ -1,5 +1,8 @@
 locals {
 
+   # todo:
+   # Downtime windows!
+
    # Default set of cluster parameters. It is possible to override this per parameter.
    cluster_parameters_default = {
      "character_set_server" = {
@@ -194,9 +197,8 @@ module "rds_aurora" {
 # deploy the monitoring for all instances
 module "rds_monitoring" {
   for_each                           = { for cluster in local.aurora_clusters_map : cluster.stack => cluster }
-  source                             = "github.com/jhoudijksbp/terraform-aws-rds-monitoring"
-  #source                             = "app.terraform.io/ccv-group/rds-monitoring/aws"
-  #version                            = "1.0.0"
+  source                             = "app.terraform.io/ccv-group/rds-monitoring/aws"
+  version                            = "1.0.1"
   cpu_utilization_too_high_threshold = each.value.cpu_utilization_too_high_threshold
   disable_actions_blocks             = each.value.disable_actions_blocks
   disable_actions_cpu                = each.value.disable_actions_cpu
@@ -216,6 +218,7 @@ module "rds_monitoring" {
 module "rds_user_management" {
   count                    = "${length(var.sql_users) > 0 ? 1 : 0}"
   source                   = "app.terraform.io/ccv-group/rds-user-management/aws"
+  providers                = { aws = aws }
   version                  = "1.0.4"
   create_kms_iam_policy    = var.create_kms_iam_policy
   create_vpc_secm_endpoint = var.create_vpc_secm_endpoint
@@ -225,8 +228,4 @@ module "rds_user_management" {
   sql_users                = local.all_users
   subnet_ids               = var.subnet_ids
   vpc_id                   = var.vpc_id
-
-  providers = {
-    aws = aws
-  }
 }
